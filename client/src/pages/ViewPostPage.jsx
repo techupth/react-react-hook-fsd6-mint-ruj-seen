@@ -1,39 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import axios from "axios";
+import useBlogPosts from "../components/useBlogPosts";
+
 
 function ViewPostPage() {
   const navigate = useNavigate();
 
-  function useBlogPosts(){
-    const [postsData, setPostsData] = useState([])
-    const [isError, setIsError] = useState(null);
-    const [isLoading, setIsLoading] = useState(null);
-
-    const getPostsData = async () => {
-      try {
-        setIsError(false);
-        setIsLoading(true);
-        const results = await axios("http://localhost:4000/posts");
-        setPostsData(results.data.data);
-        setIsLoading(false);
-      } catch (error) {
-        setIsError(true);
-      }
-    };  
-    
-    useEffect(() => {
-    getPostsData();
-  }, []);
-
-    return { data : postsData,
-            error : isError,
-            loading : isLoading 
-          }
-  }
-
-  const blogPostData = useBlogPosts()
-
+  const {data, error, loading} = useBlogPosts()
 
   return (
     <div>
@@ -46,7 +18,7 @@ function ViewPostPage() {
       <hr />
       <div className="show-all-posts-container">
         <h2>All Posts</h2>
-        {blogPostData.data.map((post) => {
+        {data.map((post) => {
           return (
             <div key={post.id} className="post">
               <h1>{post.title}</h1>
@@ -56,8 +28,8 @@ function ViewPostPage() {
             </div>
           );
         })}
-        {blogPostData.error ? <h1>Request failed</h1> : null}
-        {blogPostData.loading ? <h1>Loading ....</h1> : null}
+        {error ? <h1>Request failed</h1> : null}
+        {loading ? <h1>Loading ....</h1> : null}
       </div>
 
       <button onClick={() => navigate("/")}>Back to Home</button>
