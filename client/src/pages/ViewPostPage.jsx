@@ -5,25 +5,35 @@ import axios from "axios";
 function ViewPostPage() {
   const navigate = useNavigate();
 
-  const [posts, setPosts] = useState([]);
-  const [isError, setIsError] = useState(null);
-  const [isLoading, setIsLoading] = useState(null);
+  function useBlogPosts(){
+    const [postsData, setPostsData] = useState([])
+    const [isError, setIsError] = useState(null);
+    const [isLoading, setIsLoading] = useState(null);
 
-  const getPosts = async () => {
-    try {
-      setIsError(false);
-      setIsLoading(true);
-      const results = await axios("http://localhost:4000/posts");
-      setPosts(results.data.data);
-      setIsLoading(false);
-    } catch (error) {
-      setIsError(true);
-    }
-  };
-
-  useEffect(() => {
-    getPosts();
+    const getPostsData = async () => {
+      try {
+        setIsError(false);
+        setIsLoading(true);
+        const results = await axios("http://localhost:4000/posts");
+        setPostsData(results.data.data);
+        setIsLoading(false);
+      } catch (error) {
+        setIsError(true);
+      }
+    };  
+    
+    useEffect(() => {
+    getPostsData();
   }, []);
+
+    return { data : postsData,
+            error : isError,
+            loading : isLoading 
+          }
+  }
+
+  const blogPostData = useBlogPosts()
+
 
   return (
     <div>
@@ -36,7 +46,7 @@ function ViewPostPage() {
       <hr />
       <div className="show-all-posts-container">
         <h2>All Posts</h2>
-        {posts.map((post) => {
+        {blogPostData.data.map((post) => {
           return (
             <div key={post.id} className="post">
               <h1>{post.title}</h1>
@@ -46,8 +56,8 @@ function ViewPostPage() {
             </div>
           );
         })}
-        {isError ? <h1>Request failed</h1> : null}
-        {isLoading ? <h1>Loading ....</h1> : null}
+        {blogPostData.error ? <h1>Request failed</h1> : null}
+        {blogPostData.loading ? <h1>Loading ....</h1> : null}
       </div>
 
       <button onClick={() => navigate("/")}>Back to Home</button>
